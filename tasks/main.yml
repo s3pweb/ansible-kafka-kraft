@@ -144,10 +144,6 @@
     mode: "0644"
   notify: Restart Kafka
 
-- name: Debug hostvars
-  ansible.builtin.debug:
-    msg: "hostvars -> {{ hostvars }}"
-
 - name: Add controller nodes to group
   ansible.builtin.add_host:
     name: "{{ hostvars[item]['inventory_hostname'] }}"
