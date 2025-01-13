@@ -34,24 +34,19 @@ controller.quorum.voters={% for host in groups['kafka__group_controller_nodes'] 
 
 ############################# Socket Server Settings #############################
 
-# The address the socket server listens on.
-# Combined nodes (i.e. those with `process.roles=broker,controller`) must list the controller listener here at a minimum.
-# If the broker listener is not defined, the default listener will use a host name that is equal to the value of java.net.InetAddress.getCanonicalHostName(),
-# with PLAINTEXT listener name, and port 9092.
-#   FORMAT:
-#     listeners = listener_name://host_name:port
-#   EXAMPLE:
-#     listeners = PLAINTEXT://your.host.name:9092
-listeners={{ kafka__listeners | join(',') }}
+### Listeners ###
 
-# Name of listener used for communication between brokers.
-inter.broker.listener.name={{ kafka_inter_broker_listener_name }}
+# The address the socket server listens on.
+listeners={{ kafka__listeners | join(',') }}
 
 # Listener name, hostname and port the broker will advertise to clients.
 # If not set, it uses the value for "listeners".
 {% if "broker" in kafka_node_roles %}
 advertised.listeners=PLAINTEXT://{{ kafka_node_ip | default(ansible_default_ipv4['address'])}}:9092
 {% endif %}
+
+# Name of listener used for communication between brokers.
+inter.broker.listener.name={{ kafka_inter_broker_listener_name }}
 
 # A comma-separated list of the names of the listeners used by the controller.
 # If no explicit mapping set in `listener.security.protocol.map`, default will be using PLAINTEXT protocol
@@ -68,7 +63,38 @@ CONTROLLER://{{ hostvars[host]['kafka_node_ip'] | default(hostvars[host]['ansibl
 {% endif %}
 
 # Maps listener names to security protocols, the default is for them to be the same. See the config documentation for more details
-# listener.security.protocol.map=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,SSL:SSL,SASL_PLAINTEXT:SASL_PLAINTEXT,SASL_SSL:SASL_SSL
+listener.security.protocol.map=PLAINTEXT:PLAINTEXT,SASL_SSL:SASL_SSL,CONTROLLER:PLAINTEXT
+
+### SSL ###
+
+ssl.keystore.location = {{ kafka_home }}/ssl/kafka.kafka-20.keystore.jks
+ssl.keystore.password = {{ kafka_password }}
+ssl.key.password = {{ kafka_password }}
+ssl.truststore.location = {{ kafka_home }}/ssl/kafka.kafka-20.truststore.jks
+ssl.truststore.password = {{ kafka_password }}
+
+ssl.keystore.type = JKS
+ssl.truststore.type = JKS
+
+ssl.endpoint.identification.algorithm=
+
+### SASL ###
+
+# List of enabled mechanisms, can be more than one
+sasl.enabled.mechanisms=SCRAM-SHA-256,PLAIN
+
+# Specify one of of the SASL mechanisms
+sasl.mechanism.inter.broker.protocol=SCRAM-SHA-256
+
+sasl.client.auth=required
+
+### ACL ###
+
+authorizer.class.name=org.apache.kafka.metadata.authorizer.StandardAuthorizer
+allow.everyone.if.no.acl.found=true
+super.users=User:admin
+
+### Messages ###
 
 # The number of threads that the server uses for receiving requests from the network and sending responses to the network
 num.network.threads={{ kafka_num_network_threads }}
