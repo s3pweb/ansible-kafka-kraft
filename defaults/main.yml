@@ -33,9 +33,10 @@ kafka_socket_send_buffer_bytes: 102400
 kafka_socket_recieve_buffer_bytes: 102400
 kafka_socket_request_max_bytes: 104857600
 kafka_inter_broker_listener_name: PLAINTEXT
-kafka_listeners: []
-#  - PLAINTEXT://:9092
-#  - CONTROLLER://:9093
+kafka_listeners: #[]
+  - PLAINTEXT://:9092 # default
+  - CONTROLLER://:9093 # default
+  - SASL_SSL://:9094
 
 ## Log retention policy
 kafka_log_retention_hours: 24
