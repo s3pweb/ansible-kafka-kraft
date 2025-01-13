@@ -250,45 +250,45 @@
   retries: 3
   delay: 2
 
-- name: Wait for Kafka controllers to start
-  ansible.builtin.wait_for:
-    port: 9093
-    timeout: 30
-  when: inventory_hostname in groups["kafka__group_controller_nodes"]
-
-- name: Wait for Kafka brokers to start
-  ansible.builtin.wait_for:
-    port: 9092
-    timeout: 30
-  when: inventory_hostname in groups["kafka__group_broker_nodes"]
-
-- name: Fetch Kafka topics
-  become: true
-  become_user: "{{ kafka_user }}"
-  ansible.builtin.command:
-    cmd: "{{ kafka_home }}/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list"
-  register: kafka__reg_topics
-  changed_when: false
-  check_mode: false
-  delegate_to: "{{ groups['kafka__group_broker_nodes'] | first }}"
-  run_once: true
-
-- name: Create kafka topics
-  ansible.builtin.command:
-    cmd: >
-      {{ kafka_home }}/bin/kafka-topics.sh --create --bootstrap-server localhost:9092 --topic {{ item.name }}
-      --partitions {{ item.partitions | default(1) }}
-      --replication-factor {{ item.replication_factor | default(1) }}
-      {% for k, v in item.config | default({}) | dictsort %}
-      --config {{ k | replace("_", ".") }}={{ v }}
-      {% endfor %}
-  when: item.name not in kafka__reg_topics.stdout_lines
-  loop: "{{ kafka_topics }}"
-  changed_when: true
-  delegate_to: "{{ groups['kafka__group_broker_nodes'] | first }}"
-  run_once: true
-  loop_control:
-    label: "{{ item.name }}"
+# - name: Wait for Kafka controllers to start
+#   ansible.builtin.wait_for:
+#     port: 9093
+#     timeout: 30
+#   when: inventory_hostname in groups["kafka__group_controller_nodes"]
+# 
+# - name: Wait for Kafka brokers to start
+#   ansible.builtin.wait_for:
+#     port: 9092
+#     timeout: 30
+#   when: inventory_hostname in groups["kafka__group_broker_nodes"]
+# 
+# - name: Fetch Kafka topics
+#   become: true
+#   become_user: "{{ kafka_user }}"
+#   ansible.builtin.command:
+#     cmd: "{{ kafka_home }}/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list"
+#   register: kafka__reg_topics
+#   changed_when: false
+#   check_mode: false
+#   delegate_to: "{{ groups['kafka__group_broker_nodes'] | first }}"
+#   run_once: true
+# 
+# - name: Create kafka topics
+#   ansible.builtin.command:
+#     cmd: >
+#       {{ kafka_home }}/bin/kafka-topics.sh --create --bootstrap-server localhost:9092 --topic {{ item.name }}
+#       --partitions {{ item.partitions | default(1) }}
+#       --replication-factor {{ item.replication_factor | default(1) }}
+#       {% for k, v in item.config | default({}) | dictsort %}
+#       --config {{ k | replace("_", ".") }}={{ v }}
+#       {% endfor %}
+#   when: item.name not in kafka__reg_topics.stdout_lines
+#   loop: "{{ kafka_topics }}"
+#   changed_when: true
+#   delegate_to: "{{ groups['kafka__group_broker_nodes'] | first }}"
+#   run_once: true
+#   loop_control:
+#     label: "{{ item.name }}"
 
 # - name: Check number of partitions per topic
 #   ansible.builtin.shell: >
