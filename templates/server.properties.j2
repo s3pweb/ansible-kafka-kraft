@@ -67,10 +67,10 @@ listener.security.protocol.map=PLAINTEXT:PLAINTEXT,SASL_SSL:SASL_SSL,CONTROLLER:
 
 ### SSL ###
 
-ssl.keystore.location = {{ kafka_home }}/ssl/kafka.kafka-20.keystore.jks
+ssl.keystore.location = {{ kafka_home }}/ssl/kafka.kafka-{{ hostvars[host]['kafka_node_id'] }}.keystore.jks
 ssl.keystore.password = {{ kafka_password }}
 ssl.key.password = {{ kafka_password }}
-ssl.truststore.location = {{ kafka_home }}/ssl/kafka.kafka-20.truststore.jks
+ssl.truststore.location = {{ kafka_home }}/ssl/kafka.kafka-{{ hostvars[host]['kafka_node_id'] }}.truststore.jks
 ssl.truststore.password = {{ kafka_password }}
 
 ssl.keystore.type = JKS
