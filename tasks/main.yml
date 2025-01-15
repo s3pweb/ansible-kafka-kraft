@@ -148,7 +148,7 @@
 - name: Comment out the line 'authorizer.class.name' in server.properties
   ansible.builtin.lineinfile:
     path: "{{ kafka_home }}/server.properties"
-    regexp: "^authorizer\.class\.name"
+    regexp: '^authorizer\.class\.name'
     line: "#authorizer.class.name"
     backrefs: yes
   notify: Restart Kafka
@@ -269,7 +269,7 @@
 - name: Uncomment the line 'authorizer.class.name' in server.properties
   ansible.builtin.lineinfile:
     path: "{{ kafka_home }}/server.properties"
-    regexp: "^#authorizer\.class\.name"
+    regexp: '^#authorizer\.class\.name'
     line: "authorizer.class.name"
     backrefs: yes
   notify: Restart Kafka
