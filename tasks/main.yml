@@ -142,17 +142,7 @@
     src: kafka.service.j2
     dest: /usr/lib/systemd/system/kafka.service
     mode: "0644"
-  #notify: Restart Kafka
-
-# Pour lancer Kafka sans ACL >>
-- name: Comment out the line 'authorizer.class.name' in server.properties
-  ansible.builtin.lineinfile:
-    path: "{{ kafka_home }}/server.properties"
-    regexp: '^authorizer\.class\.name'
-    line: "#authorizer.class.name"
-    backrefs: yes
   notify: Restart Kafka
-# <<
 
 - name: Add controller nodes to group
   ansible.builtin.add_host:
@@ -182,6 +172,16 @@
     dest: "{{ kafka__config_path }}"
     mode: "0644"
   notify: Restart Kafka
+
+  # Pour lancer Kafka sans ACL >>
+- name: Comment out the line 'authorizer.class.name' in server.properties
+  ansible.builtin.lineinfile:
+    path: "{{ kafka_home }}/server.properties"
+    regexp: '^authorizer\.class\.name'
+    line: "#authorizer.class.name"
+    backrefs: yes
+  notify: Restart Kafka
+# <<
 
 - name: Check if data directory is formatted
   become: true
