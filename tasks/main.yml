@@ -142,7 +142,17 @@
     src: kafka.service.j2
     dest: /usr/lib/systemd/system/kafka.service
     mode: "0644"
+  #notify: Restart Kafka
+
+# Pour lancer Kafka sans ACL >>
+- name: Comment out the line 'authorizer.class.name' in server.properties
+  ansible.builtin.lineinfile:
+    path: "{{ kafka_home }}/server.properties"
+    regexp: "^authorizer\.class\.name"
+    line: "#authorizer.class.name"
+    backrefs: yes
   notify: Restart Kafka
+# <<
 
 - name: Add controller nodes to group
   ansible.builtin.add_host:
@@ -239,6 +249,31 @@
 
 - name: Flush handlers
   ansible.builtin.meta: flush_handlers
+
+# Configurer les utilisateurs et relancer Kafka avec les ACLs >>
+- name: Install Kafka Jaas configuration
+  become: true
+  ansible.builtin.template:
+    src: kafka_server_jaas.conf.j2
+    dest: "{{ kafka_home }}/config/kafka_server_jaas.conf"
+    mode: "0644"
+
+- name: Create Kafka admin user
+  command:
+    cmd: "{{ kafka_home }}/bin/kafka-configs.sh --bootstrap-server localhost:9092 --alter --add-config 'SCRAM-SHA-256=[password={{ kafka_user_password }}]' --entity-type users --entity-name {{ kafka_user_name }}"
+  become: true
+  vars:
+    kafka_user_name: "admin"
+    kafka_user_password: "admin-secret"
+
+- name: Uncomment the line 'authorizer.class.name' in server.properties
+  ansible.builtin.lineinfile:
+    path: "{{ kafka_home }}/server.properties"
+    regexp: "^#authorizer\.class\.name"
+    line: "authorizer.class.name"
+    backrefs: yes
+  notify: Restart Kafka
+# <<
 
 - name: Ensure Kafka service is enabled and started
   become: true
