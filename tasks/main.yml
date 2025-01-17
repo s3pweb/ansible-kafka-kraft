@@ -136,16 +136,6 @@
     create: true
   notify: Restart Kafka
 
-- name: Configure kafka jmx opts
-  become: true
-  ansible.builtin.lineinfile:
-    regexp: "^KAFKA_OPTS"
-    line: KAFKA_OPTS="{{ kafka__opts }}"
-    dest: /etc/sysconfig/kafka
-    mode: "0644"
-    create: true
-  notify: Restart Kafka
-
 - name: Install Kafka service definition
   become: true
   ansible.builtin.template:
@@ -280,7 +270,7 @@
   ansible.builtin.lineinfile:
     path: "{{ kafka_home }}/server.properties"
     regexp: '^#(authorizer\.class\.name*)'
-    line: "\1"
+    line: '\1'
     backrefs: yes
   notify: Restart Kafka
 # <<
