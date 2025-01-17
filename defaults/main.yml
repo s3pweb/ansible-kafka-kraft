@@ -17,6 +17,7 @@ kafka_replication_factor: 1
 kafka_heap_size: 1G
 kafka_opts: [] # this can be list or string
 # - -XX:NewSize=256m
+kafka_jmx_opts: [] # this can be list or string
 kafka_additional_config: {}
 #  message.max.bytes: 1000
 
