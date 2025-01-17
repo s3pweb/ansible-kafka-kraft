@@ -136,6 +136,16 @@
     create: true
   notify: Restart Kafka
 
+- name: Configure kafka jmx opts
+  become: true
+  ansible.builtin.lineinfile:
+    regexp: "^KAFKA_JMX_OPTS"
+    line: KAFKA_JMX_OPTS="{{ kafka__jmx_opts }}"
+    dest: /etc/sysconfig/kafka
+    mode: "0644"
+    create: true
+  notify: Restart Kafka
+
 - name: Install Kafka service definition
   become: true
   ansible.builtin.template:
@@ -177,8 +187,8 @@
 - name: Comment out the line 'authorizer.class.name' in server.properties
   ansible.builtin.lineinfile:
     path: "{{ kafka_home }}/server.properties"
-    regexp: '^authorizer\.class\.name'
-    line: '#\g<0>'
+    regexp: '^(authorizer\.class\.name*$)'
+    line: '#\1'
     backrefs: yes
   notify: Restart Kafka
 # <<
@@ -269,7 +279,7 @@
 - name: Uncomment the line 'authorizer.class.name' in server.properties
   ansible.builtin.lineinfile:
     path: "{{ kafka_home }}/server.properties"
-    regexp: '^#(authorizer\.class\.name*)'
+    regexp: '^#(authorizer\.class\.name*$)'
     line: '\1'
     backrefs: yes
   notify: Restart Kafka
