@@ -183,16 +183,6 @@
     mode: "0644"
   notify: Restart Kafka
 
-  # Pour lancer Kafka sans ACL >>
-- name: Comment out the line 'authorizer.class.name' in server.properties
-  ansible.builtin.lineinfile:
-    path: "{{ kafka_home }}/server.properties"
-    regexp: '^(authorizer\.class\.name=.*)$'
-    line: '#\1'
-    backrefs: yes
-  notify: Restart Kafka
-# <<
-
 - name: Check if data directory is formatted
   become: true
   become_user: "{{ kafka_user }}"
@@ -268,21 +258,13 @@
     dest: "{{ kafka_home }}/config/kafka_server_jaas.conf"
     mode: "0644"
 
-- name: Create Kafka admin user
+- name: Create Kafka users
   command:
-    cmd: "{{ kafka_home }}/bin/kafka-configs.sh --bootstrap-server localhost:9092 --alter --add-config 'SCRAM-SHA-256=[password={{ kafka_user_password }}]' --entity-type users --entity-name {{ kafka_user_name }}"
+    cmd: "{{ kafka_home }}/bin/kafka-configs.sh --bootstrap-server localhost:9092 --alter --add-config 'SCRAM-SHA-256=[password={{ item.password }}]' --entity-type users --entity-name {{ item.username }}"
   become: true
-  vars:
-    kafka_user_name: "admin"
-    kafka_user_password: "admin-secret"
-
-- name: Uncomment the line 'authorizer.class.name' in server.properties
-  ansible.builtin.lineinfile:
-    path: "{{ kafka_home }}/server.properties"
-    regexp: '^#(authorizer\.class\.name=.*)$'
-    line: '\1'
-    backrefs: yes
-  notify: Restart Kafka
+  with_items:
+    - "{ username: 'admin', password: 'admin-secret' }"
+    - "{ username: 'kafka', password: 'kafka-secret' }"
 # <<
 
 - name: Ensure Kafka service is enabled and started
