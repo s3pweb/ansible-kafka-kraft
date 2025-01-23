@@ -262,9 +262,8 @@
   command:
     cmd: "{{ kafka_home }}/bin/kafka-configs.sh --bootstrap-server localhost:9092 --alter --add-config 'SCRAM-SHA-256=[password={{ item.password }}]' --entity-type users --entity-name {{ item.username }}"
   become: true
-  with_items:
-    - "{ username: 'admin', password: 'admin-secret' }"
-    - "{ username: 'kafka', password: 'kafka-secret' }"
+  loop: "{{ kafka_users }}"
+  when: item.password is not none and item.username is not none
 # <<
 
 - name: Ensure Kafka service is enabled and started
