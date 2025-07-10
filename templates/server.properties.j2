@@ -102,6 +102,9 @@ num.network.threads={{ kafka_num_network_threads }}
 # The number of threads that the server uses for processing requests, which may include disk I/O
 num.io.threads={{ kafka_num_io_threads }}
 
+# Specify the number of threads that are used to replicate messages from a source broker. Increasing this value can lead to increased parallelism in I/O operations in the broker.
+num.replica.fetchers={{ kafka_num_replica_fetchers }}
+
 # The send buffer (SO_SNDBUF) used by the socket server
 socket.send.buffer.bytes={{ kafka_socket_send_buffer_bytes }}
 
@@ -110,7 +113,6 @@ socket.receive.buffer.bytes={{ kafka_socket_recieve_buffer_bytes }}
 
 # The maximum size of a request that the socket server will accept (protection against OOM)
 socket.request.max.bytes={{ kafka_socket_request_max_bytes }}
-
 
 ############################# Log Basics #############################
 
@@ -124,7 +126,7 @@ num.partitions={{ kafka_num_partitions }}
 
 # The number of threads per data directory to be used for log recovery at startup and flushing at shutdown.
 # This value is recommended to be increased for installations with data dirs located in RAID array.
-num.recovery.threads.per.data.dir=1
+num.recovery.threads.per.data.dir=3
 
 ############################# Internal Topic Settings  #############################
 # The replication factor for the group metadata internal topics "__consumer_offsets" and "__transaction_state"
