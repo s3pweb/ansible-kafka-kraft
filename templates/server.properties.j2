@@ -176,7 +176,7 @@ log.segment.bytes={{ kafka_log_segment_bytes }}
 # to the retention policies
 log.retention.check.interval.ms={{ kafka_log_retention_check_interval_ms }}
 
-{% if kafka_tiered_storage %}
+{% if use_kafka_tiered_storage %}
 ############################# Tiered Storage #############################
 # https://github.com/Aiven-Open/tiered-storage-for-apache-kafka
 
