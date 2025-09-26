@@ -161,6 +161,7 @@ transaction.state.log.min.isr={{ kafka_transaction_state_log_min_isr }}
 
 # The minimum age of a log file to be eligible for deletion due to age
 log.retention.hours={{ kafka_log_retention_hours }}
+log.local.retention.ms={{ kafka_local_retention_ms }}
 
 # A size-based retention policy for logs. Segments are pruned from the log unless the remaining
 # segments drop below log.retention.bytes. Functions independently of log.retention.hours.
@@ -174,6 +175,54 @@ log.segment.bytes={{ kafka_log_segment_bytes }}
 # The interval at which log segments are checked to see if they can be deleted according
 # to the retention policies
 log.retention.check.interval.ms={{ kafka_log_retention_check_interval_ms }}
+
+{% if kafka_tiered_storage %}
+############################# Tiered Storage #############################
+# https://github.com/Aiven-Open/tiered-storage-for-apache-kafka
+
+# ----- Enable tiered storage at the broker level -----
+
+remote.log.storage.system.enable=true
+
+# ----- Configure the remote log metadata manager -----
+
+# This is the default, but adding it for explicitness:
+remote.log.metadata.manager.class.name=org.apache.kafka.server.log.remote.metadata.storage.TopicBasedRemoteLogMetadataManager
+# Put the real listener name you'd like to use here to create the metadata topic:
+remote.log.metadata.manager.listener.name=PLAINTEXT
+
+# ----- Configure the remote storage manager -----
+
+remote.log.storage.manager.class.path={{ kafka_home }}/libs/core-1.0.0/*:{{ kafka_home }}/libs/s3-1.0.0/*
+remote.log.storage.manager.class.name=io.aiven.kafka.tieredstorage.RemoteStorageManager
+
+# 4 MiB is the current recommended chunk size:
+rsm.config.chunk.size=4194304
+
+# ----- Configure the storage backend -----
+
+rsm.config.storage.backend.class=io.aiven.kafka.tieredstorage.storage.s3.S3Storage
+rsm.config.storage.s3.bucket.name={{ kafka_tiered_storage_bucket }}
+rsm.config.storage.s3.region={{ kafka_tiered_storage_region }}
+rsm.config.storage.s3.endpoint={{ kafka_tiered_storage_endpoint }}
+rsm.config.storage.aws.access.key.id={{ kafka_tiered_storage_access_key }}
+rsm.config.storage.aws.secret.access.key={{ kafka_tiered_storage_secret_key }}
+
+# ----- Configure the fetch chunk cache -----
+
+rsm.config.fetch.chunk.cache.class=io.aiven.kafka.tieredstorage.fetch.cache.DiskChunkCache
+rsm.config.fetch.chunk.cache.path={{ kafka_cache_path }}
+# Pick some cache size, 16 GiB here:
+rsm.config.fetch.chunk.cache.size=17179869184
+# Prefetching size, 16 MiB here:
+rsm.config.fetch.chunk.cache.prefetch.max.size=16777216
+# Cache retention time ms, where -1 represents infinite retention, 10 min here:
+rsm.config.fetch.chunk.cache.retention.ms=600000
+
+# ----- Configure the upload rate limit -----
+# 100-200 MiB is the current recommended range for rate limiting
+rsm.config.upload.rate.limit.bytes.per.second=104857600
+{% endif %}
 
 {% if kafka_additional_config | length > 0 %}
 ############################# Additional config #############################

@@ -266,6 +266,9 @@
   when: item.password is not none and item.username is not none
 # <<
 
+- name: Ensure tiered storage is set up
+  include_tasks: tiered_storage.yml
+
 - name: Ensure Kafka service is enabled and started
   become: true
   ansible.builtin.systemd:

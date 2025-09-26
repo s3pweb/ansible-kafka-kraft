@@ -42,6 +42,7 @@ kafka_listeners: #[]
 
 ## Log retention policy
 kafka_log_retention_hours: 168
+kafka_local_retention_ms: 604800000 #7d ; 3600000=3h
 kafka_log_retention_bytes: 0 # when set to zero this setting is ignored
 kafka_log_retention_check_interval_ms: 300000
 kafka_log_segment_bytes: 1073741824
@@ -60,3 +61,12 @@ kafka_node_roles:
 kafka_offsets_topic_replication_factor: 3
 kafka_transaction_state_log_replication_factor: 3
 kafka_transaction_state_log_min_isr: 2
+
+## Tiered Storage S3
+use_kafka_tiered_storage: no
+kafka_tiered_storage_bucket: "s3pweb-kafka-preprod-tieredstorage"
+kafka_tiered_storage_region: "eu-west-3"
+kafka_tiered_storage_endpoint: "https://s3.eu-west-3.amazonaws.com"
+#kafka_tiered_storage_access_key: ""
+#kafka_tiered_storage_secret_key: ""
+kafka_cache_path: "/var/kafka/kafka-cache"
