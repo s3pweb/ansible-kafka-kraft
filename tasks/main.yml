@@ -162,7 +162,7 @@
     name: "{{ hostvars[item]['inventory_hostname'] }}"
     group: kafka__group_controller_nodes
   when: "'controller' in hostvars[item]['kafka_node_roles'] | default(kafka_node_roles)"
-  loop: "{{ ansible_play_hosts }}"
+  loop: "{{ groups['kafka-nodes'] }}"
   changed_when: false
   loop_control:
     label: "{{ hostvars[item]['inventory_hostname'] }}"
@@ -172,7 +172,7 @@
     name: "{{ hostvars[item]['inventory_hostname'] }}"
     group: kafka__group_broker_nodes
   when: "'broker' in hostvars[item]['kafka_node_roles'] | default(kafka_node_roles)"
-  loop: "{{ ansible_play_hosts }}"
+  loop: "{{ groups['kafka-nodes'] }}"
   changed_when: false
   loop_control:
     label: "{{ hostvars[item]['inventory_hostname'] }}"
